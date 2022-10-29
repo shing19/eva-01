@@ -16,3 +16,10 @@ cp .env.example .env
 #
 npm start
 ```
+
+## Train your bot
+
+0. 新建频道组【BOT训练场】和【BOT语料库】
+1. 在【BOT训练场】和【BOT语料库】分别再新建同名频道 <任意名称>
+2. 在【BOT语料库】的新频道里，投喂语料
+3. 在【BOT训练场】的新频道里，@bot 对话
