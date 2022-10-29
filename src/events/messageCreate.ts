@@ -63,8 +63,12 @@ export default new Event("messageCreate", async (message) => {
                             const childPython = spawn('python', ['./src/models/chatbot.py', promptText]);
                             childPython.stdout.on('data', async (data) => {
                                 console.log(`stdout: ${data}`); 
-                                if (!String(data).includes("starts writing")) {
-                                    message.reply(`${String(data)}`)
+                                let reply = String(data)
+                                if (!reply.includes("starts writing") && !reply.includes("wenxin api error")) {
+                                    if (reply.includes("：")) {
+                                        reply = reply.split("：")[1]
+                                    }
+                                    message.reply(`${reply}`)
                                 }
                             });
                             childPython.stderr.on('data', (data) => {
