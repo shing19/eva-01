@@ -2,6 +2,7 @@ require("dotenv").config();
 import { Event } from "../structures/Event"
 import { client } from ".."
 import { TextChannel } from "discord.js";
+import { spawn } from "child_process";
 
 export default new Event("messageCreate", async (message) => {
     const category = (await message.guild.channels.fetch(message.channelId))?.parent.name;
@@ -53,10 +54,25 @@ export default new Event("messageCreate", async (message) => {
                                 const lastIndex = item.lastIndexOf("：");
                                 item = item.substring(0, lastIndex) + promptOutput + item.substring(lastIndex + 1);
                                 prompt.push(item);
-                            })
-                            const input = promptInput + message.content?.split(" ")[1] + "\n" + promptOutput
-                            prompt.push(input)
-                            console.log(prompt.join("\n"))
+                            });
+                            const input = promptInput + message.content?.split(" ")[1] + "\n" + promptOutput;
+                            prompt.push(input);
+                            const promptText = prompt.join("\n");
+                            console.log(prompt.join("\n"));
+                            // 调用模型
+                            const childPython = spawn('python', ['./src/models/chatbot.py', promptText]);
+                            childPython.stdout.on('data', async (data) => {
+                                console.log(`stdout: ${data}`); 
+                                if (!String(data).includes("starts writing")) {
+                                    message.reply(`${String(data)}`)
+                                }
+                            });
+                            childPython.stderr.on('data', (data) => {
+                                console.error(`stderr: ${data}`);
+                            });
+                            childPython.on('close', (code) => {
+                                console.log(`child process exited with code ${code}`);
+                            });
                         }
                     })
                     .catch(console.error)

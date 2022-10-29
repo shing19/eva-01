@@ -10,6 +10,8 @@ cp .env.example .env
 #
 # BOT_TOKEN: bot token
 # CLIENT_TOKEN: bot ID
+# API_KEY: model API Key
+# SECRET_KEY: model Secret Key
 # environment: dev | prod | debug
 #
 npm start
