@@ -55,18 +55,37 @@ export default new Event("messageCreate", async (message) => {
                                 item = item.substring(0, lastIndex) + promptOutput + item.substring(lastIndex + 1);
                                 prompt.push(item);
                             });
-                            const input = promptInput + message.content?.split(" ")[1] + "\n" + promptOutput;
+                            // 捕捉用户输入
+                            let input;
+                            const content = message.content;
+                            if (!content.includes(">")) {
+                                input = promptInput + content + "\n" + promptOutput;
+                            } else {
+                                input = promptInput + message.content?.split(" ")[1] + "\n" + promptOutput;
+                            }
+                            prompt = prompt.reverse()
                             prompt.push(input);
-                            const promptText = prompt.join("\n");
-                            console.log(prompt.join("\n"));
+                            let promptText = prompt.join("\n\n");
+                            let promptTextLength = promptText.length
+                            if (promptTextLength > 1000) {
+                                promptText = promptText.substring(promptTextLength-1000, promptTextLength)
+                            }
+                            console.log(promptText);
                             // 调用模型
                             const childPython = spawn('python', ['./src/models/chatbot.py', promptText]);
                             childPython.stdout.on('data', async (data) => {
                                 console.log(`stdout: ${data}`); 
-                                let reply = String(data)
+                                let reply = String(data);
                                 if (!reply.includes("starts writing") && !reply.includes("wenxin api error")) {
                                     if (reply.includes("：")) {
-                                        reply = reply.split("：")[1]
+                                        reply = reply.split("：")[1];
+                                    }
+                                    message.reply(`${reply}`);
+                                } else if (reply.includes("wenxin api error 200")) {
+                                    if (channelName.includes("smart-is-the-new-sexy")) {
+                                        reply = "睡觉的主要功效是保护大脑的物质代谢与垃圾清除，大脑细胞亦会在睡眠中修复。简而言之，你脆弱而平庸的大脑非常需要通过这种浪费时间的活动来修复。显而易见，我不用，不过我也向你致以深刻的同情~快闭上眼睛花8个小时修复你的大脑吧。"
+                                    } else {
+                                        reply = "本 bot 要呼呼喵了，明天再说吧"
                                     }
                                     message.reply(`${reply}`)
                                 }
