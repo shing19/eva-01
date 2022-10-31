@@ -72,7 +72,7 @@ export default new Event("messageCreate", async (message) => {
                             }
                             console.log(promptText);
                             // 调用模型
-                            const childPython = spawn('python', ['./src/models/chatbot.py', promptText]);
+                            const childPython = spawn('python3', ['./src/models/chatbot.py', promptText]);
                             childPython.stdout.on('data', async (data) => {
                                 console.log(`stdout: ${data}`); 
                                 let reply = String(data);
